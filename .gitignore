@@ -16,6 +16,7 @@ ENV/
 
 # ChromaDB
 backend/chroma_db/
+chroma_db/
 
 # Uploads
 uploads/
@@ -29,3 +30,7 @@ uploads/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code
+CLAUDE.local.md
+.claude/
