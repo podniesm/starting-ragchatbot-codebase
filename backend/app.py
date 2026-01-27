@@ -40,10 +40,15 @@ class QueryRequest(BaseModel):
     query: str
     session_id: Optional[str] = None
 
+class SourceInfo(BaseModel):
+    """Source information with optional URL"""
+    title: str
+    url: Optional[str] = None
+
 class QueryResponse(BaseModel):
     """Response model for course queries"""
     answer: str
-    sources: List[str]
+    sources: List[SourceInfo]
     session_id: str
 
 class CourseStats(BaseModel):
@@ -64,10 +69,13 @@ async def query_documents(request: QueryRequest):
         
         # Process query using RAG system
         answer, sources = rag_system.query(request.query, session_id)
-        
+
+        # Convert dict sources to SourceInfo objects
+        source_infos = [SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s) for s in sources]
+
         return QueryResponse(
             answer=answer,
-            sources=sources,
+            sources=source_infos,
             session_id=session_id
         )
     except Exception as e:
