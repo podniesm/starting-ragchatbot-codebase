@@ -26,6 +26,15 @@ dev = [
 asyncio_mode = "auto"
 testpaths = ["backend/tests"]
 pythonpath = ["backend"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore:resource_tracker:UserWarning",
+]
+addopts = "-v --tb=short"
 
 [tool.black]
 line-length = 100
