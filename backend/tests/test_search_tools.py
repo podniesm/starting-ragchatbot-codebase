@@ -1,4 +1,5 @@
 """Tests for CourseSearchTool.execute() and ToolManager"""
+
 import pytest
 import sys
 from pathlib import Path
@@ -24,7 +25,9 @@ class TestCourseSearchToolExecute:
 
         assert isinstance(result, str)
 
-    def test_execute_returns_formatted_results(self, test_vector_store, sample_course, sample_chunks):
+    def test_execute_returns_formatted_results(
+        self, test_vector_store, sample_course, sample_chunks
+    ):
         """Test that execute() returns properly formatted results with headers"""
         test_vector_store.add_course_metadata(sample_course)
         test_vector_store.add_course_content(sample_chunks)
@@ -95,7 +98,9 @@ class TestCourseSearchToolExecute:
 
         assert tool.last_sources == []
 
-    def test_format_results_includes_lesson_info(self, test_vector_store, sample_course, sample_chunks):
+    def test_format_results_includes_lesson_info(
+        self, test_vector_store, sample_course, sample_chunks
+    ):
         """Test _format_results() includes lesson numbers when available"""
         test_vector_store.add_course_metadata(sample_course)
         test_vector_store.add_course_content(sample_chunks)

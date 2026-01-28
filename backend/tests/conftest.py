@@ -1,4 +1,5 @@
 """Shared pytest fixtures for RAG chatbot tests"""
+
 import pytest
 import sys
 from pathlib import Path
@@ -16,6 +17,7 @@ from vector_store import VectorStore
 @dataclass
 class TestConfig:
     """Test configuration with corrected MAX_RESULTS"""
+
     ANTHROPIC_API_KEY: str = "test-api-key"
     ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
@@ -41,7 +43,7 @@ def test_vector_store(tmp_path):
     return VectorStore(
         chroma_path=chroma_path,
         embedding_model="all-MiniLM-L6-v2",
-        max_results=5  # Override buggy config value
+        max_results=5,  # Override buggy config value
     )
 
 
@@ -53,9 +55,11 @@ def sample_course():
         course_link="https://example.com/course",
         instructor="Test Instructor",
         lessons=[
-            Lesson(lesson_number=0, title="Introduction", lesson_link="https://example.com/lesson0"),
+            Lesson(
+                lesson_number=0, title="Introduction", lesson_link="https://example.com/lesson0"
+            ),
             Lesson(lesson_number=1, title="Basics", lesson_link="https://example.com/lesson1"),
-        ]
+        ],
     )
 
 
@@ -67,13 +71,13 @@ def sample_chunks():
             content="This is test content about Python programming language.",
             course_title="Test Course",
             lesson_number=0,
-            chunk_index=0
+            chunk_index=0,
         ),
         CourseChunk(
             content="This is content about machine learning and AI.",
             course_title="Test Course",
             lesson_number=1,
-            chunk_index=1
+            chunk_index=1,
         ),
     ]
 

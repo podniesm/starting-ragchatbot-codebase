@@ -2,6 +2,7 @@
 
 These tests create a minimal test app to avoid the frontend static files issue.
 """
+
 import pytest
 import sys
 from pathlib import Path
@@ -45,7 +46,7 @@ def mock_rag_system():
     mock.session_manager.create_session.return_value = "session_1"
     mock.get_course_analytics.return_value = {
         "total_courses": 2,
-        "course_titles": ["Course A", "Course B"]
+        "course_titles": ["Course A", "Course B"],
     }
     return mock
 
@@ -64,15 +65,10 @@ def test_app(mock_rag_system):
 
             answer, sources = mock_rag_system.query(request.query, session_id)
             source_infos = [
-                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s)
-                for s in sources
+                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s) for s in sources
             ]
 
-            return QueryResponse(
-                answer=answer,
-                sources=source_infos,
-                session_id=session_id
-            )
+            return QueryResponse(answer=answer, sources=source_infos, session_id=session_id)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
@@ -81,8 +77,7 @@ def test_app(mock_rag_system):
         try:
             analytics = mock_rag_system.get_course_analytics()
             return CourseStats(
-                total_courses=analytics["total_courses"],
-                course_titles=analytics["course_titles"]
+                total_courses=analytics["total_courses"], course_titles=analytics["course_titles"]
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -99,13 +94,9 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "What is Python?"}
-            )
+            response = await client.post("/api/query", json={"query": "What is Python?"})
 
         assert response.status_code == 200
 
@@ -115,13 +106,9 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test question"}
-            )
+            response = await client.post("/api/query", json={"query": "Test question"})
 
         data = response.json()
         assert "answer" in data
@@ -133,13 +120,9 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test"}
-            )
+            response = await client.post("/api/query", json={"query": "Test"})
 
         data = response.json()
         assert "sources" in data
@@ -152,13 +135,9 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test"}
-            )
+            response = await client.post("/api/query", json={"query": "Test"})
 
         data = response.json()
         assert "session_id" in data
@@ -170,12 +149,10 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
             response = await client.post(
-                "/api/query",
-                json={"query": "Test", "session_id": "existing_session"}
+                "/api/query", json={"query": "Test", "session_id": "existing_session"}
             )
 
         mock_rag_system.query.assert_called_with("Test", "existing_session")
@@ -199,14 +176,8 @@ class TestQueryEndpoint:
 
         from httpx import AsyncClient, ASGITransport
 
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test"}
-            )
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/api/query", json={"query": "Test"})
 
         assert response.status_code == 500
 
@@ -216,13 +187,9 @@ class TestQueryEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
-            response = await client.post(
-                "/api/query",
-                json={}  # Missing query field
-            )
+            response = await client.post("/api/query", json={})  # Missing query field
 
         assert response.status_code == 422
 
@@ -236,8 +203,7 @@ class TestCoursesEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
             response = await client.get("/api/courses")
 
@@ -249,8 +215,7 @@ class TestCoursesEndpoint:
         from httpx import AsyncClient, ASGITransport
 
         async with AsyncClient(
-            transport=ASGITransport(app=test_app),
-            base_url="http://test"
+            transport=ASGITransport(app=test_app), base_url="http://test"
         ) as client:
             response = await client.get("/api/courses")
 
@@ -272,17 +237,14 @@ class TestCoursesEndpoint:
                 analytics = mock_rag_system.get_course_analytics()
                 return CourseStats(
                     total_courses=analytics["total_courses"],
-                    course_titles=analytics["course_titles"]
+                    course_titles=analytics["course_titles"],
                 )
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
         from httpx import AsyncClient, ASGITransport
 
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.get("/api/courses")
 
         assert response.status_code == 500
@@ -296,7 +258,7 @@ class TestSourceInfoHandling:
         """Test that dict sources are converted to SourceInfo"""
         mock_rag_system.query.return_value = (
             "Answer",
-            [{"title": "Source 1", "url": "http://example.com"}]
+            [{"title": "Source 1", "url": "http://example.com"}],
         )
 
         app = FastAPI()
@@ -306,21 +268,14 @@ class TestSourceInfoHandling:
             session_id = request.session_id or mock_rag_system.session_manager.create_session()
             answer, sources = mock_rag_system.query(request.query, session_id)
             source_infos = [
-                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s)
-                for s in sources
+                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s) for s in sources
             ]
             return QueryResponse(answer=answer, sources=source_infos, session_id=session_id)
 
         from httpx import AsyncClient, ASGITransport
 
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test"}
-            )
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/api/query", json={"query": "Test"})
 
         data = response.json()
         assert data["sources"][0]["title"] == "Source 1"
@@ -338,21 +293,14 @@ class TestSourceInfoHandling:
             session_id = request.session_id or mock_rag_system.session_manager.create_session()
             answer, sources = mock_rag_system.query(request.query, session_id)
             source_infos = [
-                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s)
-                for s in sources
+                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s) for s in sources
             ]
             return QueryResponse(answer=answer, sources=source_infos, session_id=session_id)
 
         from httpx import AsyncClient, ASGITransport
 
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            response = await client.post(
-                "/api/query",
-                json={"query": "Test"}
-            )
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/api/query", json={"query": "Test"})
 
         data = response.json()
         assert data["sources"] == []

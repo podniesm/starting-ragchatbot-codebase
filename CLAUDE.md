@@ -22,6 +22,25 @@ uv sync
 
 App runs at http://localhost:8000
 
+## Code Quality
+
+**Format code:**
+```bash
+uv run black .
+# or: ./scripts/format.sh
+```
+
+**Check formatting (CI-friendly):**
+```bash
+uv run black --check .
+# or: ./scripts/format.sh --check
+```
+
+**Run all quality checks:**
+```bash
+./scripts/quality.sh
+```
+
 ## Architecture
 
 ### Request Flow

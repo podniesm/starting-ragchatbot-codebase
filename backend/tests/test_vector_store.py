@@ -1,4 +1,5 @@
 """Tests for VectorStore and SearchResults - demonstrates MAX_RESULTS=0 bug"""
+
 import pytest
 import sys
 from pathlib import Path
@@ -18,7 +19,7 @@ class TestSearchResultsDataclass:
         chroma_response = {
             "documents": [["doc1", "doc2"]],
             "metadatas": [[{"key": "val1"}, {"key": "val2"}]],
-            "distances": [[0.1, 0.2]]
+            "distances": [[0.1, 0.2]],
         }
 
         results = SearchResults.from_chroma(chroma_response)
@@ -30,11 +31,7 @@ class TestSearchResultsDataclass:
 
     def test_from_chroma_handles_empty_response(self):
         """Test handling empty ChromaDB response"""
-        chroma_response = {
-            "documents": [[]],
-            "metadatas": [[]],
-            "distances": [[]]
-        }
+        chroma_response = {"documents": [[]], "metadatas": [[]], "distances": [[]]}
 
         results = SearchResults.from_chroma(chroma_response)
 
@@ -58,11 +55,7 @@ class TestSearchResultsDataclass:
 
     def test_is_empty_false_when_has_documents(self):
         """Test is_empty() returns False when has documents"""
-        results = SearchResults(
-            documents=["doc"],
-            metadata=[{"key": "value"}],
-            distances=[0.1]
-        )
+        results = SearchResults(documents=["doc"], metadata=[{"key": "value"}], distances=[0.1])
 
         assert not results.is_empty()
 
@@ -80,14 +73,14 @@ class TestVectorStoreMaxResultsBug:
         store = VectorStore(
             chroma_path=str(tmp_path / "chroma_zero"),
             embedding_model="all-MiniLM-L6-v2",
-            max_results=0  # Bug condition
+            max_results=0,  # Bug condition
         )
 
         # Add content
         store.course_content.add(
             documents=["Test content about Python programming"],
             metadatas=[{"course_title": "Test", "lesson_number": 0, "chunk_index": 0}],
-            ids=["test_0"]
+            ids=["test_0"],
         )
 
         # Search - should find content but won't due to n_results=0
@@ -105,14 +98,14 @@ class TestVectorStoreMaxResultsBug:
         store = VectorStore(
             chroma_path=str(tmp_path / "chroma_positive"),
             embedding_model="all-MiniLM-L6-v2",
-            max_results=5  # Correct value
+            max_results=5,  # Correct value
         )
 
         # Add content
         store.course_content.add(
             documents=["Test content about Python programming"],
             metadatas=[{"course_title": "Test", "lesson_number": 0, "chunk_index": 0}],
-            ids=["test_0"]
+            ids=["test_0"],
         )
 
         # Search should find content
