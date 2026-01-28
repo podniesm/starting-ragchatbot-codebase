@@ -3,6 +3,7 @@
 This module tests the /api/query and /api/courses endpoints.
 Uses a test app defined inline to avoid import issues with static file mounts.
 """
+
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
@@ -10,25 +11,28 @@ from pydantic import BaseModel
 from typing import List, Optional
 from unittest.mock import MagicMock
 
-
 # =============================================================================
 # Pydantic models (mirrored from app.py to avoid import issues)
 # =============================================================================
 
+
 class QueryRequest(BaseModel):
     """Request model for course queries"""
+
     query: str
     session_id: Optional[str] = None
 
 
 class SourceInfo(BaseModel):
     """Source information with optional URL"""
+
     title: str
     url: Optional[str] = None
 
 
 class QueryResponse(BaseModel):
     """Response model for course queries"""
+
     answer: str
     sources: List[SourceInfo]
     session_id: str
@@ -36,6 +40,7 @@ class QueryResponse(BaseModel):
 
 class CourseStats(BaseModel):
     """Response model for course statistics"""
+
     total_courses: int
     course_titles: List[str]
 
@@ -43,6 +48,7 @@ class CourseStats(BaseModel):
 # =============================================================================
 # Test App Factory
 # =============================================================================
+
 
 def create_test_app(mock_rag_system: MagicMock) -> FastAPI:
     """
@@ -62,15 +68,10 @@ def create_test_app(mock_rag_system: MagicMock) -> FastAPI:
             answer, sources = mock_rag_system.query(request.query, session_id)
 
             source_infos = [
-                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s)
-                for s in sources
+                SourceInfo(**s) if isinstance(s, dict) else SourceInfo(title=s) for s in sources
             ]
 
-            return QueryResponse(
-                answer=answer,
-                sources=source_infos,
-                session_id=session_id
-            )
+            return QueryResponse(answer=answer, sources=source_infos, session_id=session_id)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
@@ -80,8 +81,7 @@ def create_test_app(mock_rag_system: MagicMock) -> FastAPI:
         try:
             analytics = mock_rag_system.get_course_analytics()
             return CourseStats(
-                total_courses=analytics["total_courses"],
-                course_titles=analytics["course_titles"]
+                total_courses=analytics["total_courses"], course_titles=analytics["course_titles"]
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -97,6 +97,7 @@ def create_test_app(mock_rag_system: MagicMock) -> FastAPI:
 # =============================================================================
 # Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def test_client(mock_rag_system):
@@ -116,17 +117,13 @@ def test_client_error(mock_rag_system_error):
 # POST /api/query Tests
 # =============================================================================
 
+
 class TestQueryEndpoint:
     """Tests for the /api/query endpoint"""
 
-    def test_query_without_session_creates_new_session(
-        self, test_client, mock_rag_system
-    ):
+    def test_query_without_session_creates_new_session(self, test_client, mock_rag_system):
         """Query without session_id should create a new session"""
-        response = test_client.post(
-            "/api/query",
-            json={"query": "What is Python?"}
-        )
+        response = test_client.post("/api/query", json={"query": "What is Python?"})
 
         assert response.status_code == 200
         data = response.json()
@@ -136,8 +133,7 @@ class TestQueryEndpoint:
     def test_query_with_existing_session(self, test_client, mock_rag_system):
         """Query with session_id should use existing session"""
         response = test_client.post(
-            "/api/query",
-            json={"query": "Tell me more", "session_id": "my-session"}
+            "/api/query", json={"query": "Tell me more", "session_id": "my-session"}
         )
 
         assert response.status_code == 200
@@ -148,10 +144,7 @@ class TestQueryEndpoint:
 
     def test_query_returns_answer_and_sources(self, test_client):
         """Query should return answer and sources in correct format"""
-        response = test_client.post(
-            "/api/query",
-            json={"query": "What is Python?"}
-        )
+        response = test_client.post("/api/query", json={"query": "What is Python?"})
 
         assert response.status_code == 200
         data = response.json()
@@ -167,13 +160,10 @@ class TestQueryEndpoint:
         """Query should handle sources as plain strings"""
         mock_rag_system.query.return_value = (
             "Answer",
-            ["Source 1", "Source 2"]  # Plain strings instead of dicts
+            ["Source 1", "Source 2"],  # Plain strings instead of dicts
         )
 
-        response = test_client.post(
-            "/api/query",
-            json={"query": "test"}
-        )
+        response = test_client.post("/api/query", json={"query": "test"})
 
         assert response.status_code == 200
         data = response.json()
@@ -183,29 +173,20 @@ class TestQueryEndpoint:
 
     def test_query_validation_missing_query(self, test_client):
         """Query endpoint should reject request without query field"""
-        response = test_client.post(
-            "/api/query",
-            json={"session_id": "test"}
-        )
+        response = test_client.post("/api/query", json={"session_id": "test"})
 
         assert response.status_code == 422  # Validation error
 
     def test_query_validation_empty_query(self, test_client):
         """Query endpoint should accept empty query string"""
         # Note: Empty string is technically valid per the schema
-        response = test_client.post(
-            "/api/query",
-            json={"query": ""}
-        )
+        response = test_client.post("/api/query", json={"query": ""})
 
         assert response.status_code == 200
 
     def test_query_error_returns_500(self, test_client_error):
         """Query endpoint should return 500 on RAG system error"""
-        response = test_client_error.post(
-            "/api/query",
-            json={"query": "test"}
-        )
+        response = test_client_error.post("/api/query", json={"query": "test"})
 
         assert response.status_code == 500
         data = response.json()
@@ -216,6 +197,7 @@ class TestQueryEndpoint:
 # =============================================================================
 # GET /api/courses Tests
 # =============================================================================
+
 
 class TestCoursesEndpoint:
     """Tests for the /api/courses endpoint"""
@@ -250,6 +232,7 @@ class TestCoursesEndpoint:
 # Root Endpoint Tests
 # =============================================================================
 
+
 class TestRootEndpoint:
     """Tests for the root endpoint"""
 
@@ -266,24 +249,20 @@ class TestRootEndpoint:
 # Request/Response Format Tests
 # =============================================================================
 
+
 class TestRequestResponseFormats:
     """Tests for request/response format handling"""
 
     def test_query_accepts_json_content_type(self, test_client):
         """Query endpoint should accept JSON content type"""
         response = test_client.post(
-            "/api/query",
-            json={"query": "test"},
-            headers={"Content-Type": "application/json"}
+            "/api/query", json={"query": "test"}, headers={"Content-Type": "application/json"}
         )
         assert response.status_code == 200
 
     def test_query_response_is_json(self, test_client):
         """Query endpoint should return JSON response"""
-        response = test_client.post(
-            "/api/query",
-            json={"query": "test"}
-        )
+        response = test_client.post("/api/query", json={"query": "test"})
         assert response.headers["content-type"] == "application/json"
 
     def test_courses_response_is_json(self, test_client):
@@ -294,8 +273,6 @@ class TestRequestResponseFormats:
     def test_invalid_json_returns_error(self, test_client):
         """Invalid JSON should return validation error"""
         response = test_client.post(
-            "/api/query",
-            content="not valid json",
-            headers={"Content-Type": "application/json"}
+            "/api/query", content="not valid json", headers={"Content-Type": "application/json"}
         )
         assert response.status_code == 422

@@ -113,6 +113,7 @@ def mock_tool_use_response():
 # API Testing Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def mock_rag_system():
     """Create a mock RAGSystem for API testing"""
@@ -125,13 +126,13 @@ def mock_rag_system():
     # Mock query method
     mock.query.return_value = (
         "This is a test answer about Python.",
-        [{"title": "Test Course - Lesson 1", "url": "https://example.com/lesson1"}]
+        [{"title": "Test Course - Lesson 1", "url": "https://example.com/lesson1"}],
     )
 
     # Mock get_course_analytics
     mock.get_course_analytics.return_value = {
         "total_courses": 2,
-        "course_titles": ["Python Basics", "Machine Learning"]
+        "course_titles": ["Python Basics", "Machine Learning"],
     }
 
     return mock
@@ -151,16 +152,10 @@ def mock_rag_system_error():
 @pytest.fixture
 def sample_query_request():
     """Sample query request data"""
-    return {
-        "query": "What is Python?",
-        "session_id": None
-    }
+    return {"query": "What is Python?", "session_id": None}
 
 
 @pytest.fixture
 def sample_query_request_with_session():
     """Sample query request data with session ID"""
-    return {
-        "query": "Tell me more about that topic",
-        "session_id": "existing-session-789"
-    }
+    return {"query": "Tell me more about that topic", "session_id": "existing-session-789"}
