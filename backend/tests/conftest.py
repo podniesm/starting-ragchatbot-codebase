@@ -3,7 +3,7 @@ import pytest
 import sys
 from pathlib import Path
 from dataclasses import dataclass
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock
 
 # Add backend to path
 backend_path = Path(__file__).parent.parent
@@ -103,3 +103,60 @@ def mock_tool_use_response():
 
     response.content = [tool_block]
     return response
+
+
+# =============================================================================
+# API Testing Fixtures
+# =============================================================================
+
+@pytest.fixture
+def mock_rag_system():
+    """Create a mock RAGSystem for API testing"""
+    mock = MagicMock()
+
+    # Mock session manager
+    mock.session_manager = MagicMock()
+    mock.session_manager.create_session.return_value = "test-session-123"
+
+    # Mock query method
+    mock.query.return_value = (
+        "This is a test answer about Python.",
+        [{"title": "Test Course - Lesson 1", "url": "https://example.com/lesson1"}]
+    )
+
+    # Mock get_course_analytics
+    mock.get_course_analytics.return_value = {
+        "total_courses": 2,
+        "course_titles": ["Python Basics", "Machine Learning"]
+    }
+
+    return mock
+
+
+@pytest.fixture
+def mock_rag_system_error():
+    """Create a mock RAGSystem that raises errors for testing error handling"""
+    mock = MagicMock()
+    mock.session_manager = MagicMock()
+    mock.session_manager.create_session.return_value = "test-session-456"
+    mock.query.side_effect = Exception("RAG system error")
+    mock.get_course_analytics.side_effect = Exception("Analytics error")
+    return mock
+
+
+@pytest.fixture
+def sample_query_request():
+    """Sample query request data"""
+    return {
+        "query": "What is Python?",
+        "session_id": None
+    }
+
+
+@pytest.fixture
+def sample_query_request_with_session():
+    """Sample query request data with session ID"""
+    return {
+        "query": "Tell me more about that topic",
+        "session_id": "existing-session-789"
+    }
