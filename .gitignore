@@ -33,3 +33,4 @@ Thumbs.db
 
 # Claude Code
 CLAUDE.local.md
+.claude/**/*.local.*
